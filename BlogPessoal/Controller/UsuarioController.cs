@@ -26,8 +26,39 @@ public class UsuarioController : ControllerBase
         _authService = authService;
     }
 
+    [AllowAnonymous]
+    [HttpPost("cadastro")]
+    public async Task<ActionResult> Create([FromBody] Usuario usuario)
+    {
+        var validarUsuario = await _usuarioValidator.ValidateAsync(usuario);
+
+        if (!validarUsuario.IsValid)
+            return StatusCode(StatusCodes.Status400BadRequest, validarUsuario);
+
+        var Resposta = await _usuarioService.Create(usuario);
+
+        if (Resposta is null)
+            return BadRequest("Usuário já cadastrado!");
+
+        return CreatedAtAction(nameof(GetById), new { id = Resposta.Id }, Resposta);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("login")]
+    public async Task<IActionResult> Autenticar([FromBody] Login usuarioLogin)
+    {
+        var Resposta = await _authService.Autenticar(usuarioLogin);
+
+        if (Resposta == null)
+        {
+            return Unauthorized("Usuário e/ou Senha inválidos!");
+        }
+
+        return Ok(Resposta);
+    }
+
     [Authorize]
-    [HttpGet("all")]
+    [HttpGet]
     public async Task<ActionResult> GetAll()
     {
         return Ok(await _usuarioService.GetAll());
@@ -46,25 +77,8 @@ public class UsuarioController : ControllerBase
         return Ok(Resposta);
     }
 
-    [AllowAnonymous]
-    [HttpPost("cadastrar")]
-    public async Task<ActionResult> Create([FromBody] Usuario usuario)
-    {
-        var validarUsuario = await _usuarioValidator.ValidateAsync(usuario);
-
-        if (!validarUsuario.IsValid)
-            return StatusCode(StatusCodes.Status400BadRequest, validarUsuario);
-
-        var Resposta = await _usuarioService.Create(usuario);
-
-        if (Resposta is null)
-            return BadRequest("Usuário já cadastrado!");
-
-        return CreatedAtAction(nameof(GetById), new { id = Resposta.Id }, Resposta);
-    }
-
     [Authorize]
-    [HttpPut("atualizar")]
+    [HttpPut]
     public async Task<ActionResult> Update([FromBody] Usuario usuario)
     {
         if (usuario.Id == 0)
@@ -84,20 +98,6 @@ public class UsuarioController : ControllerBase
 
         if (Resposta is null)
             return BadRequest("Usuário não encontrado!");
-
-        return Ok(Resposta);
-    }
-
-    [AllowAnonymous]
-    [HttpPost("logar")]
-    public async Task<IActionResult> Autenticar([FromBody] Login usuarioLogin)
-    {
-        var Resposta = await _authService.Autenticar(usuarioLogin);
-
-        if (Resposta == null)
-        {
-            return Unauthorized("Usuário e/ou Senha inválidos!");
-        }
 
         return Ok(Resposta);
     }
