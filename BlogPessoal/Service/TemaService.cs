@@ -1,16 +1,20 @@
-﻿using BlogPessoal.Data;
+﻿using BlogPessoal.Context;
 using BlogPessoal.Model;
+using BlogPessoal.Repository.Interfaces;
+using BlogPessoal.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogPessoal.Service.Implements;
+namespace BlogPessoal.Service;
 
 public class TemaService : ITemaService
 {
-    public readonly AppDbContext _context;
+    private readonly AppDbContext _context;
+    private readonly ITemaRepository _repository;
 
-    public TemaService(AppDbContext context)
+    public TemaService(AppDbContext context, ITemaRepository repository)
     {
         _context = context;
+        _repository = repository;
     }
 
     public async Task<IEnumerable<Tema>> GetAll()

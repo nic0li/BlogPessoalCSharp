@@ -1,6 +1,6 @@
 ﻿namespace BlogPessoal.Model;
 
-public class Login
+public class UsuarioLogin
 {
     public long Id { get; set; }
 

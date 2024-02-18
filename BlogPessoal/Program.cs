@@ -1,9 +1,6 @@
-using BlogPessoal.Data;
 using BlogPessoal.Model;
 using BlogPessoal.Security.Implements;
 using BlogPessoal.Security;
-using BlogPessoal.Service.Implements;
-using BlogPessoal.Service;
 using BlogPessoal.Validator;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +10,11 @@ using System.Text;
 using BlogPessoal.Configuration;
 using Microsoft.OpenApi.Models;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
+using BlogPessoal.Service.Interfaces;
+using BlogPessoal.Service;
+using BlogPessoal.Context;
+using BlogPessoal.Repository;
+using BlogPessoal.Repository.Interfaces;
 
 namespace BlogPessoal;
 
@@ -53,6 +55,12 @@ public class Program
         builder.Services.AddScoped<ITemaService, TemaService>();
         builder.Services.AddScoped<IPublicacaoService, PublicacaoService>();
         builder.Services.AddScoped<IComentarioService, ComentarioService>();
+
+        // Registrar as Classes e Interfaces Repository
+        builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        builder.Services.AddScoped<ITemaRepository, TemaRepository>();
+        builder.Services.AddScoped<IPublicacaoRepository, PublicacaoRepository>();
+        builder.Services.AddScoped<IComentarioRepository, ComentarioRepository>();
 
         // Adicionar a Validação do Token JWT
 

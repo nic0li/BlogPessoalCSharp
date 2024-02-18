@@ -1,5 +1,5 @@
 ﻿using BlogPessoal.Model;
-using BlogPessoal.Service;
+using BlogPessoal.Service.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,60 +7,57 @@ using Microsoft.AspNetCore.Mvc;
 namespace BlogPessoal.Controller;
 
 [Authorize]
-[Route("~/comentarios")]
+[Route("~/[Controller]")]
 [ApiController]
 public class ComentarioController : ControllerBase
 {
-    private readonly IComentarioService _comentarioService;
-    private readonly IValidator<Comentario> _comentarioValidator;
+    private readonly IComentarioService _service;
+    private readonly IValidator<Comentario> _validator;
 
-    public ComentarioController(
-        IComentarioService comentarioService,
-        IValidator<Comentario> comentarioValidator
-        )
+    public ComentarioController(IComentarioService service,IValidator<Comentario> validator)
     {
-        _comentarioService = comentarioService;
-        _comentarioValidator = comentarioValidator;
+        _service = service;
+        _validator = validator;
     }
 
     [HttpGet]
     public async Task<ActionResult> GetAll()
     {
-        return Ok(await _comentarioService.GetAll());
+        return Ok(await _service.GetAll());
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(long id)
     {
-        var Resposta = await _comentarioService.GetById(id);
+        var resposta = await _service.GetById(id);
 
-        if (Resposta is null)
+        if (resposta is null)
         {
             return NotFound("Comentário não encontrada!");
         }
-        return Ok(Resposta);
+        return Ok(resposta);
     }
 
-    [HttpGet("texto/{texto}")]
+    [HttpGet("Texto/{texto}")]
     public async Task<ActionResult> GetByTexto(string texto)
     {
-        return Ok(await _comentarioService.GetByTexto(texto));
+        return Ok(await _service.GetByTexto(texto));
     }
 
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] Comentario comentario)
     {
-        var validarComentario = await _comentarioValidator.ValidateAsync(comentario);
+        var validarComentario = await _validator.ValidateAsync(comentario);
 
         if (!validarComentario.IsValid)
             return StatusCode(StatusCodes.Status400BadRequest, validarComentario);
 
-        var Resposta = await _comentarioService.Create(comentario);
+        var resposta = await _service.Create(comentario);
 
-        if (Resposta is null)
+        if (resposta is null)
             return BadRequest("Comentário não encontrado!");
 
-        return CreatedAtAction(nameof(GetById), new { id = Resposta.Id }, Resposta);
+        return CreatedAtAction(nameof(GetById), new { id = resposta.Id }, resposta);
     }
 
     [HttpPut]
@@ -69,28 +66,28 @@ public class ComentarioController : ControllerBase
         if (comentario.Id == 0)
             return BadRequest("Id da Comentario é inválido!");
 
-        var validarComentario = await _comentarioValidator.ValidateAsync(comentario);
+        var validarComentario = await _validator.ValidateAsync(comentario);
 
         if (!validarComentario.IsValid)
             return StatusCode(StatusCodes.Status400BadRequest, validarComentario);
 
-        var Resposta = await _comentarioService.Update(comentario);
+        var resposta = await _service.Update(comentario);
 
-        if (Resposta is null)
+        if (resposta is null)
             return NotFound("Comentário e/ou Publicação não encontrados!");
 
-        return Ok(Resposta);
+        return Ok(resposta);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(long id)
     {
-        var BuscaComentario = await _comentarioService.GetById(id);
+        var comentarioBuscado = await _service.GetById(id);
 
-        if (BuscaComentario is null)
+        if (comentarioBuscado is null)
             return NotFound("Comentário não encontrado!");
 
-        await _comentarioService.Delete(BuscaComentario);
+        await _service.Delete(comentarioBuscado);
 
         return NoContent();
     }

@@ -1,5 +1,5 @@
 ﻿using BlogPessoal.Model;
-using BlogPessoal.Service;
+using BlogPessoal.Service.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,60 +7,57 @@ using Microsoft.AspNetCore.Mvc;
 namespace BlogPessoal.Controller;
 
 [Authorize]
-[Route("~/temas")]
+[Route("~/[Controller]")]
 [ApiController]
 public class TemaController : ControllerBase
 {
-    private readonly ITemaService _temaService;
-    private readonly IValidator<Tema> _temaValidator;
+    private readonly ITemaService _service;
+    private readonly IValidator<Tema> _validator;
 
-    public TemaController(
-        ITemaService temaService,
-        IValidator<Tema> temaValidator
-        )
+    public TemaController(ITemaService service,IValidator<Tema> validator)
     {
-        _temaService = temaService;
-        _temaValidator = temaValidator;
+        _service = service;
+        _validator = validator;
     }
 
     [HttpGet]
     public async Task<ActionResult> GetAll()
     {
-        return Ok(await _temaService.GetAll());
+        return Ok(await _service.GetAll());
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(long id)
     {
-        var Resposta = await _temaService.GetById(id);
+        var resposta = await _service.GetById(id);
 
-        if (Resposta is null)
+        if (resposta is null)
         {
             return NotFound("Tema não encontrado!");
         }
-        return Ok(Resposta);
+        return Ok(resposta);
     }
 
-    [HttpGet("descricao/{descricao}")]
+    [HttpGet("Descricao/{descricao}")]
     public async Task<ActionResult> GetByDescricao(string descricao)
     {
-        return Ok(await _temaService.GetByDescricao(descricao));
+        return Ok(await _service.GetByDescricao(descricao));
     }
 
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] Tema tema)
     {
-        var validarTema = await _temaValidator.ValidateAsync(tema);
+        var validarTema = await _validator.ValidateAsync(tema);
 
         if (!validarTema.IsValid)
             return StatusCode(StatusCodes.Status400BadRequest, validarTema);
 
-        var Resposta = await _temaService.Create(tema);
+        var resposta = await _service.Create(tema);
 
-        if (Resposta is null)
+        if (resposta is null)
             return BadRequest("Tema não encontrado!");
 
-        return CreatedAtAction(nameof(GetById), new { id = Resposta.Id }, Resposta);
+        return CreatedAtAction(nameof(GetById), new { id = resposta.Id }, resposta);
     }
 
     [HttpPut]
@@ -69,28 +66,28 @@ public class TemaController : ControllerBase
         if (tema.Id == 0)
             return BadRequest("Id do Tema é inválido!");
 
-        var validarTema = await _temaValidator.ValidateAsync(tema);
+        var validarTema = await _validator.ValidateAsync(tema);
 
         if (!validarTema.IsValid)
             return StatusCode(StatusCodes.Status400BadRequest, validarTema);
 
-        var Resposta = await _temaService.Update(tema);
+        var resposta = await _service.Update(tema);
 
-        if (Resposta is null)
+        if (resposta is null)
             return NotFound("Tema não encontrado!");
 
-        return Ok(Resposta);
+        return Ok(resposta);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var BuscaTema = await _temaService.GetById(id);
+        var temaBuscado = await _service.GetById(id);
 
-        if (BuscaTema is null)
+        if (temaBuscado is null)
             return NotFound("Tema não encontrado!");
 
-        await _temaService.Delete(BuscaTema);
+        await _service.Delete(temaBuscado);
 
         return NoContent();
     }

@@ -1,14 +1,23 @@
 ﻿using BlogPessoal.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogPessoal.Data;
+namespace BlogPessoal.Context;
 
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-
     }
+
+    public AppDbContext()
+    {
+    }
+
+    // Registro das Entidades
+    public DbSet<Usuario> Usuarios { get; set; }
+    public DbSet<Tema> Temas { get; set; }
+    public DbSet<Publicacao> Publicacoes { get; set; }
+    public DbSet<Comentario> Comentarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,14 +52,8 @@ public class AppDbContext : DbContext
             .HasOne(p => p.Usuario)
             .WithMany(t => t.Comentario)
             .HasForeignKey("UsuarioId")
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
-
-    // Registro das Entidades
-    public DbSet<Usuario> Usuarios { get; set; } = null!;
-    public DbSet<Tema> Temas { get; set; } = null!;
-    public DbSet<Publicacao> Publicacoes { get; set; } = null!;
-    public DbSet<Comentario> Comentarios { get; set; } = null!;
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

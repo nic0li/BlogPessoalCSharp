@@ -1,16 +1,20 @@
-﻿using BlogPessoal.Data;
+﻿using BlogPessoal.Context;
 using BlogPessoal.Model;
+using BlogPessoal.Repository.Interfaces;
+using BlogPessoal.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogPessoal.Service.Implements;
+namespace BlogPessoal.Service;
 
 public class ComentarioService : IComentarioService
 {
     private readonly AppDbContext _context;
+    private readonly IComentarioRepository _repository;
 
-    public ComentarioService(AppDbContext context)
+    public ComentarioService(AppDbContext context, IComentarioRepository repository)
     {
         _context = context;
+        _repository = repository;
     }
 
     public async Task<IEnumerable<Comentario>> GetAll()

@@ -1,16 +1,20 @@
-﻿using BlogPessoal.Data;
+﻿using BlogPessoal.Context;
 using BlogPessoal.Model;
+using BlogPessoal.Repository.Interfaces;
+using BlogPessoal.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogPessoal.Service.Implements;
+namespace BlogPessoal.Service;
 
 public class PublicacaoService : IPublicacaoService
 {
     private readonly AppDbContext _context;
+    private readonly IPublicacaoRepository _repository;
 
-    public PublicacaoService(AppDbContext context)
+    public PublicacaoService(AppDbContext context, IPublicacaoRepository repository)
     {
         _context = context;
+        _repository = repository;
     }
 
     public async Task<IEnumerable<Publicacao>> GetAll()

@@ -1,5 +1,5 @@
 ﻿using BlogPessoal.Model;
-using BlogPessoal.Service;
+using BlogPessoal.Service.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,60 +7,57 @@ using Microsoft.AspNetCore.Mvc;
 namespace BlogPessoal.Controller;
 
 [Authorize]
-[Route("~/publicacoes")]
+[Route("~/[Controller]")]
 [ApiController]
 public class PublicacaoController : ControllerBase
 {
-    private readonly IPublicacaoService _publicacaoService;
-    private readonly IValidator<Publicacao> _publicacaoValidator;
+    private readonly IPublicacaoService _service;
+    private readonly IValidator<Publicacao> _validator;
 
-    public PublicacaoController(
-        IPublicacaoService publicacaoService,
-        IValidator<Publicacao> publicacaoValidator
-        )
+    public PublicacaoController(IPublicacaoService service, IValidator<Publicacao> validator)
     {
-        _publicacaoService = publicacaoService;
-        _publicacaoValidator = publicacaoValidator;
+        _service = service;
+        _validator = validator;
     }
 
     [HttpGet]
     public async Task<ActionResult> GetAll()
     {
-        return Ok(await _publicacaoService.GetAll());
+        return Ok(await _service.GetAll());
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(long id)
     {
-        var Resposta = await _publicacaoService.GetById(id);
+        var resposta = await _service.GetById(id);
 
-        if (Resposta is null)
+        if (resposta is null)
         {
             return NotFound("Publicação não encontrada!");
         }
-        return Ok(Resposta);
+        return Ok(resposta);
     }
 
-    [HttpGet("titulo/{titulo}")]
+    [HttpGet("Titulo/{titulo}")]
     public async Task<ActionResult> GetByTitulo(string titulo)
     {
-        return Ok(await _publicacaoService.GetByTitulo(titulo));
+        return Ok(await _service.GetByTitulo(titulo));
     }
 
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] Publicacao publicacao)
     {
-        var validarPublicacao = await _publicacaoValidator.ValidateAsync(publicacao);
+        var validarPublicacao = await _validator.ValidateAsync(publicacao);
 
         if (!validarPublicacao.IsValid)
             return StatusCode(StatusCodes.Status400BadRequest, validarPublicacao);
 
-        var Resposta = await _publicacaoService.Create(publicacao);
+        var resposta = await _service.Create(publicacao);
 
-        if (Resposta is null)
+        if (resposta is null)
             return BadRequest("Publicação não encontrada!");
 
-        return CreatedAtAction(nameof(GetById), new { id = Resposta.Id }, Resposta);
+        return CreatedAtAction(nameof(GetById), new { id = resposta.Id }, resposta);
     }
 
     [HttpPut]
@@ -69,28 +66,28 @@ public class PublicacaoController : ControllerBase
         if (publicacao.Id == 0)
             return BadRequest("Id da Publicação é inválido!");
 
-        var validarPublicacao = await _publicacaoValidator.ValidateAsync(publicacao);
+        var validarPublicacao = await _validator.ValidateAsync(publicacao);
 
         if (!validarPublicacao.IsValid)
             return StatusCode(StatusCodes.Status400BadRequest, validarPublicacao);
 
-        var Resposta = await _publicacaoService.Update(publicacao);
+        var resposta = await _service.Update(publicacao);
 
-        if (Resposta is null)
+        if (resposta is null)
             return NotFound("Publicação e/ou Tema não encontrados!");
 
-        return Ok(Resposta);
+        return Ok(resposta);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(long id)
     {
-        var BuscaPublicacao = await _publicacaoService.GetById(id);
+        var publicacaoBuscada = await _service.GetById(id);
 
-        if (BuscaPublicacao is null)
+        if (publicacaoBuscada is null)
             return NotFound("Publicação não encontrada!");
 
-        await _publicacaoService.Delete(BuscaPublicacao);
+        await _service.Delete(publicacaoBuscada);
 
         return NoContent();
     }

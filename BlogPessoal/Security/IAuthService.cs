@@ -4,5 +4,5 @@ namespace BlogPessoal.Security;
 
 public interface IAuthService
 {
-    Task<Login?> Autenticar(Login usuarioLogin);
+    Task<UsuarioLogin?> Autenticar(UsuarioLogin usuarioLogin);
 }

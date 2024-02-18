@@ -1,16 +1,20 @@
-﻿using BlogPessoal.Data;
+﻿using BlogPessoal.Context;
 using BlogPessoal.Model;
+using BlogPessoal.Repository.Interfaces;
+using BlogPessoal.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogPessoal.Service.Implements;
+namespace BlogPessoal.Service;
 
 public class UsuarioService : IUsuarioService
 {
-    public readonly AppDbContext _context;
+    private readonly AppDbContext _context;
+    private readonly IUsuarioRepository _repository;
 
-    public UsuarioService(AppDbContext context)
+    public UsuarioService(AppDbContext context, IUsuarioRepository repository)
     {
         _context = context;
+        _repository = repository;
     }
 
     public async Task<IEnumerable<Usuario>> GetAll()
@@ -90,5 +94,11 @@ public class UsuarioService : IUsuarioService
         await _context.SaveChangesAsync();
 
         return usuario;
+    }
+
+    public async Task Delete(Usuario entity)
+    {
+        _context.Usuarios.Remove(entity);
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,9 +1,9 @@
-﻿using BlogPessoal.Service;
-using BlogPessoal.Model;
+﻿using BlogPessoal.Model;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BlogPessoal.Service.Interfaces;
 
 namespace BlogPessoal.Security.Implements;
 
@@ -16,7 +16,7 @@ public class AuthService : IAuthService
         _usuarioService = usuarioService;
     }
 
-    public async Task<Login?> Autenticar(Login usuarioLogin)
+    public async Task<UsuarioLogin?> Autenticar(UsuarioLogin usuarioLogin)
     {
         string FotoDefault = "https://i.imgur.com/I8MfmC8.png";
 
