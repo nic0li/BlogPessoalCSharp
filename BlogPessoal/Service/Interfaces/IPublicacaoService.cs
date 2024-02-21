@@ -8,11 +8,11 @@ public interface IPublicacaoService
 
     Task<Publicacao?> GetById(long id);
 
-    Task<Publicacao> Create(Publicacao entity);
+    Task<Publicacao?> Create(Publicacao entity);
 
     Task<Publicacao?> Update(Publicacao entity);
 
     Task Delete(Publicacao entity);
 
-    Task<IEnumerable<Publicacao>> GetByTitulo(string titulo);
+    Task<IEnumerable<Publicacao?>> GetByTitulo(string titulo);
 }

@@ -8,11 +8,11 @@ public interface ITemaService
 
     Task<Tema?> GetById(long id);
 
-    Task<Tema> Create(Tema entity);
+    Task<Tema?> Create(Tema entity);
 
     Task<Tema?> Update(Tema entity);
 
     Task Delete(Tema entity);
 
-    Task<IEnumerable<Tema>> GetByDescricao(string descricao);
+    Task<IEnumerable<Tema?>> GetByDescricao(string descricao);
 }

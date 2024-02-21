@@ -1,80 +1,45 @@
-﻿using BlogPessoal.Context;
-using BlogPessoal.Model;
+﻿using BlogPessoal.Model;
 using BlogPessoal.Repository.Interfaces;
 using BlogPessoal.Service.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlogPessoal.Service;
 
 public class TemaService : ITemaService
 {
-    private readonly AppDbContext _context;
     private readonly ITemaRepository _repository;
 
-    public TemaService(AppDbContext context, ITemaRepository repository)
+    public TemaService(ITemaRepository repository)
     {
-        _context = context;
         _repository = repository;
     }
 
     public async Task<IEnumerable<Tema>> GetAll()
     {
-        return await _context.Temas
-             .Include(t => t.Publicacao)
-             .ToListAsync();
+        return await _repository.GetAll();
     }
 
     public async Task<Tema?> GetById(long id)
     {
-        try
-        {
-            var Tema = await _context.Temas
-                 .Include(t => t.Publicacao)
-                 .FirstAsync(t => t.Id == id);
-
-            return Tema;
-        }
-        catch
-        {
-            return null;
-        }
+        return await _repository.GetById(id);
     }
 
-    public async Task<IEnumerable<Tema>> GetByDescricao(string descricao)
+    public async Task<Tema?> Create(Tema entity)
     {
-        var Tema = await _context.Temas
-            .Include(t => t.Publicacao)
-            .Where(t => t.Descricao.Contains(descricao))
-            .ToListAsync();
-
-        return Tema;
+        return await _repository.Create(entity);
     }
 
-    public async Task<Tema> Create(Tema tema)
+    public async Task<Tema?> Update(Tema entity)
     {
-        _context.Temas.Add(tema);
-        await _context.SaveChangesAsync();
-
-        return tema;
+        return await _repository.Update(entity);
     }
 
-    public async Task<Tema?> Update(Tema tema)
+    public async Task Delete(Tema entity)
     {
-        var TemaUpdate = await _context.Temas.FindAsync(tema.Id);
-
-        if (TemaUpdate == null)
-            return null;
-
-        _context.Entry(TemaUpdate).State = EntityState.Detached;
-        _context.Entry(tema).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-
-        return tema;
+        await _repository.Delete(entity);
     }
 
-    public async Task Delete(Tema tema)
+    public async Task<IEnumerable<Tema?>> GetByDescricao(string descricao)
     {
-        _context.Temas.Remove(tema);
-        await _context.SaveChangesAsync();
+        return await _repository.GetByDescricao(descricao);
     }
 }

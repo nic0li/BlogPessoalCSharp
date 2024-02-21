@@ -8,7 +8,7 @@ public interface IUsuarioService
 
     Task<Usuario?> GetById(long id);
 
-    Task<Usuario> Create(Usuario entity);
+    Task<Usuario?> Create(Usuario entity);
 
     Task<Usuario?> Update(Usuario entity);
 

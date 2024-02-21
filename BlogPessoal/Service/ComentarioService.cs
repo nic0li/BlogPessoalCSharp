@@ -1,108 +1,45 @@
-﻿using BlogPessoal.Context;
-using BlogPessoal.Model;
+﻿using BlogPessoal.Model;
 using BlogPessoal.Repository.Interfaces;
 using BlogPessoal.Service.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace BlogPessoal.Service;
 
 public class ComentarioService : IComentarioService
 {
-    private readonly AppDbContext _context;
     private readonly IComentarioRepository _repository;
 
-    public ComentarioService(AppDbContext context, IComentarioRepository repository)
+    public ComentarioService(IComentarioRepository repository)
     {
-        _context = context;
         _repository = repository;
     }
 
     public async Task<IEnumerable<Comentario>> GetAll()
     {
-        return await _context.Comentarios
-            .Include(p => p.Publicacao)
-            .Include(p => p.Usuario)
-            .ToListAsync();
+        return await _repository.GetAll();
     }
 
     public async Task<Comentario?> GetById(long id)
     {
-        try
-        {
-            var comentario = await _context.Comentarios
-                .Include(p => p.Publicacao)
-                .Include(p => p.Usuario)
-                .FirstAsync(p => p.Id == id);
-
-            return comentario;
-        }
-        catch
-        {
-            return null;
-        }
+        return await _repository.GetById(id);
     }
 
-    public async Task<IEnumerable<Comentario>> GetByTexto(string texto)
+    public async Task<Comentario?> Create(Comentario entity)
     {
-        var comentario = await _context.Comentarios
-            .Include(p => p.Publicacao)
-            .Include(p => p.Usuario)
-            .Where(p => p.Texto.Contains(texto))
-            .ToListAsync();
-
-        return comentario;
+        return await _repository.Create(entity);
     }
 
-    public async Task<Comentario?> Create(Comentario comentario)
+    public async Task<Comentario?> Update(Comentario entity)
     {
-        if (comentario.Publicacao is not null)
-        {
-            var buscaPublicacao = await _context.Publicacoes.FindAsync(comentario.Publicacao.Id);
-
-            if (buscaPublicacao is null)
-                return null;
-
-            comentario.Publicacao = buscaPublicacao;
-        }
-
-        comentario.Usuario = comentario.Usuario is not null ? await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == comentario.Usuario.Id) : null;
-
-        await _context.Comentarios.AddAsync(comentario);
-        await _context.SaveChangesAsync();
-
-        return comentario;
+        return await _repository.Update(entity);
     }
 
-    public async Task<Comentario?> Update(Comentario comentario)
+    public async Task Delete(Comentario entity)
     {
-        var atualizaPublicacao = await _context.Comentarios.FindAsync(comentario.Id);
-
-        if (atualizaPublicacao is null)
-            return null;
-
-        if (comentario.Publicacao is not null)
-        {
-            var buscaPublicacao = await _context.Publicacoes.FindAsync(comentario.Publicacao.Id);
-
-            if (buscaPublicacao is null)
-                return null;
-
-            comentario.Publicacao = buscaPublicacao;
-
-        }
-
-        comentario.Usuario = comentario.Usuario is not null ? await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == comentario.Usuario.Id) : null;
-
-        _context.Entry(atualizaPublicacao).State = EntityState.Detached;
-        _context.Entry(comentario).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-
-        return comentario;
+        await _repository.Delete(entity);
     }
 
-    public async Task Delete(Comentario comentario)
+    public async Task<IEnumerable<Comentario?>> GetByTexto(string texto)
     {
-        _context.Comentarios.Remove(comentario);
-        await _context.SaveChangesAsync();
+        return await _repository.GetByTexto(texto);
     }
 }
