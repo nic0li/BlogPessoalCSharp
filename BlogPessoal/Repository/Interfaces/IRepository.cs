@@ -1,16 +1,14 @@
-﻿using System.Linq.Expressions;
-
-namespace BlogPessoal.Repository.Interfaces;
+﻿namespace BlogPessoal.Repository.Interfaces;
 
 public interface IRepository<T>
 {
-    IQueryable<T> GetAll();
+    Task<IEnumerable<T>> GetAll();
 
-    T? GetById(Expression<Func<T, bool>> predicate);
+    Task<T?> GetById(long id);
 
-    void Add(T entity);
+    Task<T?> Create(T entity);
 
-    void Update(T entity);
+    Task<T?> Update(T entity);
 
-    void Delete(T entity);
+    Task Delete(T entity);
 }

@@ -6,7 +6,7 @@ public interface IService<T>
 
     Task<T?> GetById(long id);
 
-    Task<T> Create(T entity);
+    Task<T?> Create(T entity);
 
     Task<T?> Update(T entity);
 
